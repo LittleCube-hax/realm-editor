@@ -13,6 +13,8 @@ public class TextureData {
     public var animatedChar_:AnimatedChar = null;
 
     public var randomTextureData_:Vector.<TextureData> = null;
+    
+    public var randomerTextureData_:Vector.<TextureData> = null;
 
     public var altTextures_:Dictionary = null;
 
@@ -31,6 +33,8 @@ public class TextureData {
             this.parse(XML(objectXML.AnimatedTexture));
         } else if (objectXML.hasOwnProperty("RandomTexture")) {
             this.parse(XML(objectXML.RandomTexture));
+        } else if (objectXML.hasOwnProperty("RandomerTexture")) {
+            this.parse(XML(objectXML.RandomerTexture));
         } else if (objectXML.hasOwnProperty("RemoteTexture")) {
             this.parse(XML(objectXML.RemoteTexture));
         } else {
@@ -48,11 +52,14 @@ public class TextureData {
     }
 
     public function getTexture(id:int = 0):BitmapData {
-        if (this.randomTextureData_ == null) {
-            return this.texture_;
+        if (this.randomerTextureData_ != null) {
+            var textureData:TextureData = this.randomerTextureData_[Math.floor(this.randomerTextureData_.length*Math.random())];
+            return textureData.getTexture(id);
+        } else if (this.randomTextureData_ != null) {
+            var textureData:TextureData = this.randomTextureData_[id % this.randomTextureData_.length];
+            return textureData.getTexture(id);
         }
-        var textureData:TextureData = this.randomTextureData_[id % this.randomTextureData_.length];
-        return textureData.getTexture(id);
+        return this.texture_;
     }
 
     public function getAltTextureData(id:int):TextureData {
@@ -82,6 +89,12 @@ public class TextureData {
                 this.randomTextureData_ = new Vector.<TextureData>();
                 for each(childXML in xml.children()) {
                     this.randomTextureData_.push(new TextureData(childXML));
+                }
+                break;
+            case "RandomerTexture":
+                this.randomerTextureData_ = new Vector.<TextureData>();
+                for each(childXML in xml.children()) {
+                    this.randomerTextureData_.push(new TextureData(childXML));
                 }
                 break;
             case "AltTexture":
